@@ -11,6 +11,7 @@ use App\Models\ReimbursementModel;
 use App\Models\TreatmentModel;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
+use Config\Database;
 use DateTime;
 use Psr\Log\LoggerInterface;
 
@@ -104,35 +105,93 @@ class UIICController extends BaseController
     public function reimbursementReport()
     {
         $connect = Database::connect();
-
-        $sql = "select b.tocode,b.dt_name,count(a.*) as total_count,
-                    sum(case when a.emp_type =0 then 1  end) as state_employee,
-                    sum(case when a.emp_type =1 then 1  end) as board_employee,
-                    sum(case when a.emp_type =2 then 1  end) as corporation_employee,
-                    sum(case when a.emp_type =3 then 1  end) as pensioner,
-                    sum(case when a.payment_status is null then 1 else 0 end) as to_be_process,
-                    sum(case when a.payment_status =1 then 1 else 0 end) as paid,
-                    sum(case when a.payment_status =0 then 1 else 0 end) as return
-		        from reimbursement a,district_master b where a.tocode=b.tocode  group by 1,2";
-        $execute = $connect->query($sql);
-        $data = $execute->getResultArray();
+        $query = $connect->table('reimbursement a')
+            ->select('b.tocode, b.dt_name,
+                      COUNT(a.*) as total_count,
+                      SUM(CASE WHEN a.emp_type = 0 THEN 1 END) as state_employee,
+                      SUM(CASE WHEN a.emp_type = 1 THEN 1 END) as board_employee,
+                      SUM(CASE WHEN a.emp_type = 2 THEN 1 END) as corporation_employee,
+                      SUM(CASE WHEN a.emp_type = 3 THEN 1 END) as pensioner,
+                      SUM(CASE WHEN a.payment_status IS NULL THEN 1 ELSE 0 END) as to_be_process,
+                      SUM(CASE WHEN a.payment_status = 1 THEN 1 ELSE 0 END) as paid,
+                      SUM(CASE WHEN a.payment_status = 0 THEN 1 ELSE 0 END) as return')
+            ->join('district_master b', 'a.tocode = b.tocode')
+            ->groupBy('b.tocode, b.dt_name');
+        $results = $query->get()->getResult();
         $fetchData = [];
-        foreach ($data as $values) {
+        foreach ($results as $values) {
             $fetchData[] = [
-                'tocode' => $values['tocode'],
-                'dt_name' => $values['dt_name'],
-                'total_count' => $values['total_count'],
-                'state_employee' => $values['state_employee'],
-                'board_employee' => $values['board_employee'],
-                'corporation_employee' => $values['corporation_employee'],
-                'pensioner' => $values['pensioner'],
-                'to_be_process' => $values['to_be_process'],
-                'paid' => $values['paid'],
-                'return' => $values['return']
+                'tocode' => $values->tocode,
+                'dt_name' => $values->dt_name,
+                'total_count' => $values->total_count,
+                'state_employee' => $values->state_employee,
+                'board_employee' => $values->board_employee,
+                'corporation_employee' => $values->corporation_employee,
+                'pensioner' => $values->pensioner,
+                'to_be_process' => $values->to_be_process,
+                'paid' => $values->paid,
+                'return' => $values->return
             ];
         }
+
         return view('uiic/reportReimbursement', [
             "data" => $fetchData,
+        ]);
+    }
+
+    public function hospitals($id)
+    {
+        $connect = Database::connect();
+        $query = $connect->table('reimbursement a')
+            ->select('b.hospital_name, b.id as hospital_id, b.dist_code, d.dt_name as district_name,
+                      COUNT(a.*) as tot_count,
+                      SUM(CASE WHEN a.emp_type = 0 THEN 1 END) as state_employee,
+                      SUM(CASE WHEN a.emp_type = 1 THEN 1 END) as board_employee,
+                      SUM(CASE WHEN a.emp_type = 2 THEN 1 END) as corporation_employee,
+                      SUM(CASE WHEN a.emp_type = 3 THEN 1 END) as pensioner,
+                      SUM(CASE WHEN a.payment_status IS NULL THEN 1 ELSE 0 END) as to_be_process,
+                      SUM(CASE WHEN a.payment_status = 1 THEN 1 ELSE 0 END) as paid,
+                      SUM(CASE WHEN a.payment_status = 0 THEN 1 ELSE 0 END) as return')
+            ->join('hospital_master b', 'a.tocode = b.dist_code and a.hospital_id = b.id')
+            ->join('district_master d', 'b.dist_code = d.tocode')
+            ->where('a.tocode', $id)
+            ->groupBy('b.hospital_name, b.id, b.dist_code, d.dt_name');
+        $results = $query->get()->getResult();
+        $fetchData = [];
+        foreach ($results as $values) {
+            $fetchData[] = [
+                'hospital_name' => $values->hospital_name,
+                'hospital_id' => $values->hospital_id,
+                'district_name' => $values->district_name,
+                'dist_code' => $values->dist_code,
+                'total_count' => $values->tot_count,
+                'state_employee' => $values->state_employee,
+                'board_employee' => $values->board_employee,
+                'corporation_employee' => $values->corporation_employee,
+                'pensioner' => $values->pensioner,
+                'to_be_process' => $values->to_be_process,
+                'paid' => $values->paid,
+                'return' => $values->return
+            ];
+        }
+
+        return view('uiic/reportHospitals', [
+            "data" => $fetchData,
+        ]);
+    }
+
+    public function admissions($id)
+    {
+        $data = [];
+        $reimbursement = new ReimbursementModel();
+        $data = $reimbursement->select('reimbursement.*, hospital_master.hospital_name')
+            ->join('hospital_master', 'hospital_master.id = reimbursement.hospital_id')
+            ->where('hospital_id', $id)
+            ->orderBy('date_admission')
+            ->findAll();
+
+        return view('uiic/reportAdmissions', [
+            "data" => $data,
         ]);
     }
 

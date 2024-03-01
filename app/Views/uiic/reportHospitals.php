@@ -11,9 +11,11 @@
                     <div class="page-pretitle">
                         Reports
                     </div>
+                    <?php if (isset($data)): foreach ($data as $values): ?>
                     <h2 class="page-title">
-                        Reimbursement Entry Report
+                        List of Hospitals in &nbsp;<?= ucfirst($values['district_name']); ?>
                     </h2>
+                    <?php endforeach; endif;?>
                 </div>
             </div>
         </div>
@@ -27,24 +29,24 @@
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
-                                    <tr>
-                                        <th>S.No</th>
-                                        <th>District Name</th>
-                                        <th>Total Entries</th>
-                                        <th>State</th>
-                                        <th>Board</th>
-                                        <th>Corporation</th>
-                                        <th>Pensioners</th>
-                                        <th>To Be Process</th>
-                                        <th>Paid</th>
-                                        <th>Return</th>
-                                    </tr>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Hospital Name</th>
+                                    <th>Total Admission</th>
+                                    <th>State</th>
+                                    <th>Board</th>
+                                    <th>Corporation</th>
+                                    <th>Pensioners</th>
+                                    <th>To Be Process</th>
+                                    <th>Paid</th>
+                                    <th>Return</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $sn = 1; if (isset($data)): foreach ($data as $values): ?>
+                                <?php $sn = 1; if (isset($data)): foreach ($data as $values): ?>
                                     <tr>
                                         <td><?= $sn; ?></td>
-                                        <td><a href="<?= base_url('uiic/hospitals/'.$values['tocode']) ?>"><?= $values['dt_name']; ?></a></td>
+                                        <td><a href="<?= base_url('uiic/admissions/'.$values['hospital_id']) ?>"><?= $values['hospital_name']; ?></a></td>
                                         <td><?= $values['total_count']; ?></td>
                                         <td><?= $values['state_employee']; ?></td>
                                         <td><?= $values['board_employee']; ?></td>
