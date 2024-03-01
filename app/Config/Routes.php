@@ -34,9 +34,18 @@ $routes->group('uiic', ["filter" => "auth"], static function ($routes) {
 
     //Reimbursement
     $routes->match(['get', 'post'], 'reimbursement-entry', 'UIICController::reimbursementEntry');
+    $routes->match(['get', 'post'], 'reimbursement-report', 'UIICController::reimbursementReport');
+    $routes->match(['get', 'post'], 'upload', 'UIICController::upload');
 
     //Payment Entry
     $routes->match(['get', 'post'], 'payment-entry', 'UIICController::paymentEntry');
+
+    //AJAX
+    $routes->match(['get', 'post'], 'get-district', 'UIICController::getDistrict');
+    $routes->match(['get', 'post'], 'get-hospital', 'UIICController::getHospital');
+    $routes->match(['get', 'post'], 'get-disease', 'UIICController::getDisease');
+    $routes->match(['get', 'post'], 'get-treatment', 'UIICController::getTreatment');
+    $routes->match(['get', 'post'], 'get-user', 'UIICController::getUser');
 });
 
 //USER ADMIN

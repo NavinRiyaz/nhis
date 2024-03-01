@@ -10,7 +10,7 @@
     <link href="<?= base_url('assets/css/tabler-vendors.min.css') ?>" rel="stylesheet"/>
     <link href="<?= base_url('assets/css/demo.min.css') ?>" rel="stylesheet"/>
     <link rel="shortcut icon" href="<?= base_url('assets/img/logo.png') ?>" type="image/x-icon">
-    <link href="<?= base_url('assets/libs/dropzone/dist/dropzone.css') ?>" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
     <style>
         @import url('https://rsms.me/inter/inter.css');
         :root {
