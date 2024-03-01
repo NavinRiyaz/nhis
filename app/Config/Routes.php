@@ -35,6 +35,8 @@ $routes->group('uiic', ["filter" => "auth"], static function ($routes) {
     //Reimbursement
     $routes->match(['get', 'post'], 'reimbursement-entry', 'UIICController::reimbursementEntry');
     $routes->match(['get', 'post'], 'reimbursement-report', 'UIICController::reimbursementReport');
+    $routes->match(['get', 'post'], 'hospitals/(:num)', 'UIICController::hospitals/$1');
+    $routes->match(['get', 'post'], 'admissions/(:num)', 'UIICController::admissions/$1');
     $routes->match(['get', 'post'], 'upload', 'UIICController::upload');
 
     //Payment Entry
