@@ -19,6 +19,18 @@
                 </div>
             </div>
         </div>
+        <div class="container">
+            <?php if(session()->getFlashdata('success')): ?>
+                <div class="alert alert-important alert-success alert-dismissible" role="alert">
+                    <div class="d-flex">
+                        <div>
+                            <?= session()->getFlashdata('success'); ?>
+                        </div>
+                    </div>
+                    <a class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="close"></a>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
     <!-- Page body -->
     <div class="page-body">
@@ -36,6 +48,8 @@
                                     <th>Date of Admission</th>
                                     <th>Date of Discharge</th>
                                     <th>Treatment Type</th>
+                                    <th>Payment Status</th>
+                                    <th>Date</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
@@ -55,9 +69,19 @@
                                             <?php endif; ?>
                                         </td>
                                         <td>
+                                            <?php if ($values['payment_status'] === '0'): ?>
+                                                <span class="badge badge-outline text-red">Rejected</span>
+                                            <?php elseif($values['payment_status'] === '1'): ?>
+                                                <span class="badge badge-outline text-green">Paid</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?= $values['uiic_payment_entry_date']; ?></td>
+                                        <td>
                                             <a href="#"><span class="badge badge-outline text-blue">Edit</span></a>
                                             <a href="#"><span class="badge badge-outline text-blue">View Documents</span></a>
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#modal-payment"><span class="badge badge-outline text-blue">Payment</span></a>
+                                            <?php if ($values['payment_status'] === NULL): ?>
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#modal-payment" data-id="<?= $values['id'] ?>"><span class="badge badge-outline text-blue">Payment</span></a>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                     <?php $sn++; endforeach; endif;?>
@@ -73,38 +97,38 @@
     <!--In Page Modals-->
     <div class="modal modal-blur fade" id="modal-payment" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <form action="#" method="post" enctype="multipart/form-data">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Update Payment Status</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Payment Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="<?= base_url('uiic/update-payment') ?>" method="post" enctype="multipart/form-data">
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-selectgroup-item">
-                                    <input type="radio" name="payment_type" id="approved" value="1" class="form-selectgroup-input">
+                                    <input type="radio" name="payment_type" id="approved_radio" value="1" class="form-selectgroup-input" onchange="approved()">
                                     <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                    <span class="me-3">
-                                        <span class="form-selectgroup-check"></span>
+                                        <span class="me-3">
+                                            <span class="form-selectgroup-check"></span>
+                                        </span>
+                                        <span class="form-selectgroup-label-content">
+                                            <span class="form-selectgroup-title strong mb-1">Approved</span>
+                                        </span>
                                     </span>
-                                    <span class="form-selectgroup-label-content">
-                                        <span class="form-selectgroup-title strong mb-1">Approved</span>
-                                    </span>
-                                </span>
                                 </label>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-selectgroup-item">
-                                    <input type="radio" name="payment_type" id="rejected" value="0" class="form-selectgroup-input">
+                                    <input type="radio" name="payment_type" id="rejected_radio" value="0" class="form-selectgroup-input" onchange="rejected()">
                                     <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                    <span class="me-3">
-                                        <span class="form-selectgroup-check"></span>
+                                        <span class="me-3">
+                                            <span class="form-selectgroup-check"></span>
+                                        </span>
+                                        <span class="form-selectgroup-label-content">
+                                            <span class="form-selectgroup-title strong mb-1">Rejected</span>
+                                        </span>
                                     </span>
-                                    <span class="form-selectgroup-label-content">
-                                        <span class="form-selectgroup-title strong mb-1">Rejected</span>
-                                    </span>
-                                </span>
                                 </label>
                             </div>
                         </div>
@@ -113,9 +137,9 @@
                                 <div class="col-md-6">
                                     <label class="form-label required" for="paid_amount">Paid Amount</label>
                                     <div class="input-icon mb-3">
-                                    <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt-rupee" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" /><path d="M15 7h-6h1a3 3 0 0 1 0 6h-1l3 3" /><path d="M9 10h6" /></svg>
-                                    </span>
+                                        <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt-rupee" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" /><path d="M15 7h-6h1a3 3 0 0 1 0 6h-1l3 3" /><path d="M9 10h6" /></svg>
+                                        </span>
                                         <input type="text" class="form-control" id="paid_amount" name="paid_amount">
                                     </div>
                                     <div class="invalid-feedback">Paid Amount</div>
@@ -123,9 +147,9 @@
                                 <div class="col-md-6">
                                     <label class="form-label required" for="paid_date">Paid Date</label>
                                     <div class="input-icon mb-3">
-                                    <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-event" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M16 3l0 4" /><path d="M8 3l0 4" /><path d="M4 11l16 0" /><path d="M8 15h2v2h-2z" /></svg>
-                                    </span>
+                                        <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-event" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M16 3l0 4" /><path d="M8 3l0 4" /><path d="M4 11l16 0" /><path d="M8 15h2v2h-2z" /></svg>
+                                        </span>
                                         <input type="text" class="form-control" id="paid_date" name="paid_date">
                                     </div>
                                     <div class="invalid-feedback">Paid Date</div>
@@ -135,9 +159,9 @@
                                 <div class="col-md-12">
                                     <label class="form-label required" for="utr_no">UTR No</label>
                                     <div class="input-icon mb-3">
-                                    <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" /></svg>
-                                    </span>
+                                        <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" /></svg>
+                                        </span>
                                         <input type="text" class="form-control" id="utr_no" name="utr_no">
                                     </div>
                                     <div class="invalid-feedback">UTR No</div>
@@ -147,7 +171,7 @@
                         <div id="rejected" class="d-none">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="mb-3" id="rejected">
+                                    <div class="mb-3">
                                         <label class="form-label required" for="remarks">Reason for Rejection  <span class="text-danger" id="count"></span></label>
                                         <textarea class="form-control" maxlength="300" name="remarks" id="remarks" placeholder="Diagnosis Entry" rows="5"></textarea>
                                         <div class="invalid-feedback"></div>
@@ -155,13 +179,15 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
-                    </div>
+                        <input type="hidden" name="ref" id="ref">
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <input type="submit" value="Update Payment" class="btn btn-primary">
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -179,4 +205,21 @@
             },
         }));
     });
+
+    function approved()
+    {
+       $('#approved').removeClass('d-none');
+       $('#rejected').addClass('d-none');
+    }
+
+    function rejected()
+    {
+        $('#rejected').removeClass('d-none');
+        $('#approved').addClass('d-none');
+    }
+
+    $("a[data-bs-toggle='modal']").click(function() {
+        let dataId = $(this).data('id');
+        $('#ref').val(dataId);
+    })
 </script>

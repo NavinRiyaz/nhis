@@ -202,6 +202,48 @@ class UIICController extends BaseController
         return view('uiic/payment');
     }
 
+    public function updatePayment()
+    {
+        if ($this->request->getMethod() == 'post')
+        {
+            $reference_id = $this->request->getVar('ref');
+            $checked = $this->request->getVar('payment_type');
+            $reimbursement = new ReimbursementModel();
+
+            if ($checked === '0')
+            {
+                $data = [
+                    'remark' => $this->request->getVar('remarks'),
+                    'payment_status' => '0',
+                    'uiic_payment_entry_date' => date('Y-m-d'),
+                ];
+                if ($reimbursement->update($reference_id, $data))
+                {
+                    return redirect()->back()->with('success', 'Applicant Rejected!');
+                }
+
+            }
+
+            if ($checked === '1')
+            {
+                $data = [
+                    'payment_status' => '1',
+                    'utr_no' => $this->request->getVar('utr_no'),
+                    'utr_date' => $this->request->getVar('paid_date'),
+                    'paid_amount' => $this->request->getVar('paid_amount'),
+                    'uiic_payment_entry_date' => date('Y-m-d'),
+                ];
+
+                if ($reimbursement->update($reference_id, $data))
+                {
+                    return redirect()->back()->with('success', 'Paid Successfully');
+                }
+
+            }
+        }
+
+    }
+
     //AJAX CALL
     public function getDistrict()
     {

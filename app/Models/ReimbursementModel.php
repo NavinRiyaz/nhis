@@ -51,6 +51,7 @@ class ReimbursementModel extends Model
           'chk_primary',
           'payment_status_update',
           'payment_statusupdate_date',
+          'uiic_payment_entry_date',
     ];
 
     protected bool $allowEmptyInserts = false;

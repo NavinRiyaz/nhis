@@ -16,6 +16,12 @@ $routes->group('super', ["filter" => "auth"], static function ($routes) {
 //DISTRICT
 $routes->group('district', ["filter" => "auth"], static function ($routes) {
     $routes->get('/', 'DistrictController::index');
+
+    //Reimbursement
+    $routes->match(['get', 'post'], 'reimbursement-entry', 'DistrictController::reimbursementEntry');
+    $routes->match(['get', 'post'], 'reimbursement-report', 'DistrictController::reimbursementReport');
+    $routes->match(['get', 'post'], 'hospitals/(:num)', 'DistrictController::hospitals/$1');
+    $routes->match(['get', 'post'], 'admissions/(:num)', 'DistrictController::admissions/$1');
 });
 
 //STATE
@@ -37,6 +43,7 @@ $routes->group('uiic', ["filter" => "auth"], static function ($routes) {
     $routes->match(['get', 'post'], 'reimbursement-report', 'UIICController::reimbursementReport');
     $routes->match(['get', 'post'], 'hospitals/(:num)', 'UIICController::hospitals/$1');
     $routes->match(['get', 'post'], 'admissions/(:num)', 'UIICController::admissions/$1');
+    $routes->match(['get', 'post'], 'update-payment', 'UIICController::updatePayment');
     $routes->match(['get', 'post'], 'upload', 'UIICController::upload');
 
     //Payment Entry
